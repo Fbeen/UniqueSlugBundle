@@ -121,6 +121,7 @@ From now on if you persist your entity the slug will be automatically generated.
 ## Advanced Slugs
 
 The slug annotation has some more futures:
+
 1) To generate slugs from more than one entity just write an array of properties:
 `@Slug({"created", "title"})`
 
