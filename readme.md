@@ -126,3 +126,7 @@ The slug annotation has some more futures:
 `@Slug({"created", "title"})`
 
 2) To add your own format for **date**, **time** and **datetime** fields use the format parameter: `@Slug({"created", "title"}, format="Y-m-d")`.
+
+## Important notes
+
+1) The slugs will be truncated to the length of the slug field minus 10 characters! the last 10 positions are used for additional digits that will make the slug unique if necessary.
