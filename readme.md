@@ -105,7 +105,7 @@ class Newsitem
 **Important notes about this example:**
 
 * Do not forget the `use Fbeen\UniqueSlugBundle\Annotation\Slug;`
-* Add a `@Slug("Title")` annotation to the slug property to tell the application it should create a slug from the $title property
+* Add a `@Slug("title")` annotation to the slug property to tell the application it should create a slug from the $title property
 * Add a constructor that sets the $created property to the current date and time
 * use the following commands on the console to add the getters and setters and to update the database:
 
