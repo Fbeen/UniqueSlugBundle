@@ -26,7 +26,7 @@ Using composer:
 
 2) run composer update:
 
-    `$ composer update`
+    $ composer update
 
 3) Add the bundle to the app/AppKernel.php:
 ```
@@ -123,4 +123,5 @@ From now on if you persist your entity the slug will be automatically generated.
 The slug annotation has some more futures:
 1) To generate slugs from more than one entity just write an array of properties:
 `@Slug({"created", "title"})`
+
 2) To add your own format for **date**, **time** and **datetime** fields use the format parameter: `@Slug({"created", "title"}, format="Y-m-d")`.
