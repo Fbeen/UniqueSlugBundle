@@ -18,10 +18,10 @@ Using composer:
 Add `"fbeen/uniqueslugbundle": "dev-master"` to the require section of your composer.json project file.
 
 ```
-"require": {
+    "require": {
         ...
         "fbeen/uniqueslugbundle": "dev-master"
-},
+    },
 ```
 
 run composer update:
