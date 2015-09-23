@@ -127,6 +127,15 @@ The slug annotation has some more futures:
 
 2) To add your own format for **date**, **time** and **datetime** fields use the format parameter: `@Slug({"created", "title"}, format="Y-m-d")`.
 
+## Update the slugs for all records of your table
+
+Using the app/console in the command prompt you are able to generate the cruds for all the records:
+
+    $ php app/console fbeen:generate:slugs
+    
+You will have to type the entity shortcut and then you need to confirm the update.
+
+
 ## Important notes
 
 1) The slugs will be truncated to the length of the slug field minus 10 characters! the last 10 positions are used for additional digits that will make the slug unique if necessary.
