@@ -1,0 +1,6 @@
+services:
+    fbeen.uniqueslug.slugupdater:
+        class: Fbeen\UniqueSlugBundle\Listener\SlugUpdater
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }
