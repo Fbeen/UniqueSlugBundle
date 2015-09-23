@@ -15,7 +15,7 @@ With this bundle you will be able to automatic generate unique slugs inside your
 
 Using composer:
 
-Add `"fbeen/uniqueslugbundle": "dev-master"` to the require section of your composer.json project file.
+1) Add `"fbeen/uniqueslugbundle": "dev-master"` to the require section of your composer.json project file.
 
 ```
     "require": {
@@ -24,15 +24,24 @@ Add `"fbeen/uniqueslugbundle": "dev-master"` to the require section of your comp
     },
 ```
 
-run composer update:
+2) run composer update:
 
-    $ composer update
+    `$ composer update`
+
+3) Add the bundle to the app/AppKernel.php:
+```
+        $bundles = array(
+            ...
+            new Fbeen\UniqueSlugBundle\FbeenUniqueSlugBundle(),
+        );
+```
 
 ## Adding Slug behavior to your entity
 
-Suppose that you have a Newsitem entity to display some news on your website.
+Suppose that you have a ***"Newsitem"*** entity to display some news on your website.
 You might have a entity like this:
-`<?php
+```
+<?php
 
 namespace AppBundle\Entity;
 
@@ -90,14 +99,28 @@ class Newsitem
     {
         $this->created = new \DateTime();
     }
-}`
+}
+```
 
-Important notes about this example:
+**Important notes about this example:**
 
 * Do not forget the `use Fbeen\UniqueSlugBundle\Annotation\Slug;`
 * Add a `@Slug("Title")` annotation to the slug property to tell the application it should create a slug from the $title property
 * Add a constructor that sets the $created property to the current date and time
-* use the command `php app/console doctrine:generate:entities AppBundle:Newsitem` to add the getters and setters
-* use the command `php app/console doctrine:schema:update --force` to update the database
+* use the following commands on the console to add the getters and setters and to update the database:
 
+    `$ php app/console doctrine:generate:entities AppBundle:Newsitem`
+    
+    `$ php app/console doctrine:schema:update --force`
 
+## Using the Slugs in your routes
+
+From now on if you persist your entity the slug will be automatically generated. To use the slugs into the routes you could simply use the crud property into the route e.g.
+`@Route("news/{slug}", name="newsitem_show")`
+
+## Advanced Slugs
+
+The slug annotation has some more futures:
+1) To generate slugs from more than one entity just write an array of properties:
+`@Slug({"created", "title"})`
+2) To add your own format for **date**, **time** and **datetime** fields use the format parameter: `@Slug({"created", "title"}, format="Y-m-d")`.
