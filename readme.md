@@ -20,7 +20,7 @@ Add `"fbeen/uniqueslugbundle": "dev-master"` to the require section of your comp
 ```
 "require": {
         ...
- 	"fbeen/uniqueslugbundle": "dev-master"
+        "fbeen/uniqueslugbundle": "dev-master"
 },
 ```
 
