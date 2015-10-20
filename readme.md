@@ -118,6 +118,32 @@ class Newsitem
 From now on if you persist your entity the slug will be automatically generated. To use the slugs into the routes you could simply use the $slug property into the route e.g.
 `@Route("news/{slug}", name="newsitem_show")`
 
+And then you have to retrieve the right newsitem using the given slug:
+```
+    /**
+     * Finds and displays a Newsitem entity.
+     *
+     * @Route("/{slug}", name="newsitem_show")
+     * @Method("GET")
+     * @Template()
+     */
+    public function showAction($slug)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('AppBundle:Newsitem')->findOneBy(array('slug' => $slug));
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Newsitem entity.');
+        }
+
+        return array(
+            'entity'      => $entity,
+        );
+    }
+
+```
+
 ## Advanced Slugs
 
 The slug annotation has some more futures:
