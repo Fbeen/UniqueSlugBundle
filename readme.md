@@ -155,7 +155,7 @@ The slug annotation has some more futures:
 
 ## Update the slugs for all records of your table
 
-Using the app/console in the command prompt you are able to generate the cruds for all the records:
+Using the Symfony console commands you are able to generate the slugs for all the records:
 
     $ php app/console fbeen:generate:slugs
     
