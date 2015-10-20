@@ -115,14 +115,14 @@ class Newsitem
 
 ## Using the Slugs in your routes
 
-From now on if you persist your entity the slug will be automatically generated. To use the slugs into the routes you could simply use the crud property into the route e.g.
+From now on if you persist your entity the slug will be automatically generated. To use the slugs into the routes you could simply use the $slug property into the route e.g.
 `@Route("news/{slug}", name="newsitem_show")`
 
 ## Advanced Slugs
 
 The slug annotation has some more futures:
 
-1) To generate slugs from more than one entity just write an array of properties:
+1) To generate slugs from more than one property just write an array of properties:
 `@Slug({"created", "title"})`
 
 2) To add your own format for **date**, **time** and **datetime** fields use the format parameter: `@Slug({"created", "title"}, format="Y-m-d")`.
