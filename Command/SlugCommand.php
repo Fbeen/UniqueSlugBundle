@@ -26,12 +26,15 @@ class SlugCommand extends ContainerAwareCommand
                 InputArgument::OPTIONAL,
                 'Who do you want to greet?'
             )
+            ->addOption('em', null, InputOption::VALUE_REQUIRED, 'The entity manager to use for this command.')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $doctrine = $this->getContainer()->get('doctrine');
+        $em = $doctrine->getManager($input->getOption('em'));
+        
         $helper = $this->getHelper('question');
         
         $output->writeln("\n<question>                                      ");
@@ -76,4 +79,5 @@ class SlugCommand extends ContainerAwareCommand
         
         $output->writeln("\nDone!\n");
     }
+
 }
