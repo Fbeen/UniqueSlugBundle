@@ -72,9 +72,7 @@ class SlugCommand extends ContainerAwareCommand
         $slugupdater = new SlugUpdater();
 
         foreach($entities as $entity)
-        {            blog:
-                driver:   pdo_mysql
-                options:
+        {
             $slugupdater->preUpdate(new LifecycleEventArgs($entity, $em));
             $em->flush();
         }
