@@ -79,4 +79,5 @@ class SlugCommand extends ContainerAwareCommand
         
         $output->writeln("\nDone!\n");
     }
+
 }
