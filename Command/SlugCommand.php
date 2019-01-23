@@ -34,21 +34,21 @@ class SlugCommand extends ContainerAwareCommand
     {
         $doctrine = $this->getContainer()->get('doctrine');
         $em = $doctrine->getManager($input->getOption('em'));
-        
+
         $helper = $this->getHelper('question');
-        
+
         $output->writeln("\n<question>                                      ");
         $output->writeln(' Welcome to the Fbeen slug generator. ');
         $output->writeln("                                      </question>\n");
-        
+
         $entityName = $input->getArgument('entity');
-        
+
         if(!$entityName)
         {
             $output->writeln('This command helps you to update slugs on an entire table.');
             $output->writeln('First, you need to give the entity for which you want to generate the slugs.');
             $output->writeln("\nYou must use the shortcut notation like <comment>AcmeBlogBundle:Post</comment>.\n");
-            
+
             $question = new Question('<info>The Entity shortcut name: </info>');
 
             $question->setValidator(array('Sensio\Bundle\GeneratorBundle\Command\Validators', 'validateEntityName'));
@@ -58,9 +58,9 @@ class SlugCommand extends ContainerAwareCommand
             $entityName = $helper->ask($input, $output, $question);
 
         }
-        
+
         $entities = $em->getRepository($entityName)->findAll();
-        
+
         $question = new ConfirmationQuestion('<info>Continue generating slugs for ' . $entityName . '</info> [<comment>no</comment>]? ', false);
 
         if (!$helper->ask($input, $output, $question)) {
@@ -68,15 +68,16 @@ class SlugCommand extends ContainerAwareCommand
         }
 
         $output->writeln("\nGenerating the slugs...");
-        
-        $slugupdater = new SlugUpdater();
+
+        $transliterate = $this->getContainer()->getParameter("transliterate", 'remove');
+        $slugupdater = new SlugUpdater($transliterate);
 
         foreach($entities as $entity)
         {
             $slugupdater->preUpdate(new LifecycleEventArgs($entity, $em));
             $em->flush();
         }
-        
+
         $output->writeln("\nDone!\n");
     }
 

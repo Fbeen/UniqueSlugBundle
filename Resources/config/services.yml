@@ -1,6 +1,7 @@
 services:
     fbeen.uniqueslug.slugupdater:
         class: Fbeen\UniqueSlugBundle\Listener\SlugUpdater
+        arguments: ["remove"]
         tags:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
