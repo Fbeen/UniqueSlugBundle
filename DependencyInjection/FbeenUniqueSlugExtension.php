@@ -24,5 +24,11 @@ class FbeenUniqueSlugExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        if (array_key_exists('transliterate', $config)) {
+            $definition = $container->getDefinition('fbeen.uniqueslug.slugupdater');
+            $definition->replaceArgument(0, $config['transliterate']);
+            $container->setParameter('transliterate', $config['transliterate']);
+        }
     }
 }
