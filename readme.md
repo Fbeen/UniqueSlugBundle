@@ -10,6 +10,7 @@ With this bundle you will be able to automatic generate unique slugs inside your
 * making the slug unique by adding a digit when needed
 * add or check slugs in existing tables with the command prompt
 * support for date, time and datetime fields with custom format
+* replace language specific chars with the latin ones
 
 ## Installation
 
@@ -161,6 +162,15 @@ Using the Symfony console commands you are able to generate the slugs for all th
     
 You will have to type the entity shortcut and then you need to confirm the update.
 
+## Replace or Remove language specific chars
+
+Under your parameters use one of following setting
+
+parameters:
+  ....
+  fbeen_unique_slug:
+    #transliterate: remove # remove language specific chars
+    transliterate: keep # keep language specific chars but replace them with the corresponding latin ones
 
 ## Important notes
 
