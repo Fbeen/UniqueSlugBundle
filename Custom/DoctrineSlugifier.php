@@ -2,32 +2,40 @@
 
 namespace Fbeen\UniqueSlugBundle\Custom;
 
+use Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface;
+
 /**
- * Description of Slugifier
+ * This class generates unique slugs in the scope of a database table using Doctrine
  *
- * @author Frank Beentjes
+ * @author Frank Beentjes <frankbeen@gmail.com>
  */
-class Slugifier
+class DoctrineSlugifier
 {
     private $tableName;
     private $columnName;
     private $fieldlength;
     private $entityManager;
     private $additionalChars;
+    private $slugifier;
 
 
-    public function __construct($tableName, $columnName, $fieldlength, $entityManager, $additionalChars = 10)
+    public function __construct(SlugifierInterface $slugifier, $tableName, $columnName, $fieldlength, $entityManager, $additionalChars = 10)
     {
         $this->tableName = $tableName;
         $this->columnName = $columnName;
         $this->fieldlength = $fieldlength;
         $this->entityManager = $entityManager;
         $this->additionalChars = $additionalChars;
+        $this->slugifier = $slugifier;
     }
 
-    public function generateSlug($text, $oldSlug = NULL, $transliterate)
+    public function generateSlug($text, $oldSlug = NULL)
     {
-        return $this->makeSlugUnique( $this->truncateSlug( $this->Slugify($text, $transliterate) ), $oldSlug );;
+        if(!$this->slugifier instanceof SlugifierInterface) {
+            throw new \Symfony\Component\Validator\Exception\RuntimeException($slugifyClass . ' does not implement Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface');
+        }
+
+        return $this->makeSlugUnique( $this->truncateSlug( $this->slugifier->slugify($text) ), $oldSlug );;
     }
 
     private function truncateSlug($slug)
@@ -77,38 +85,5 @@ class Slugifier
         }
 
         return FALSE;
-    }
-
-    private function Slugify($text, $transliterate)
-    {
-        // replace non letter or digits by -
-        $text = preg_replace('~[^\\pL\d]+~u', '-', $text);
-
-        // trim
-        $text = trim($text, '-');
-
-        // transliterate
-        switch ($transliterate) {
-            case 'remove':
-                $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
-                break;
-            case 'keep':
-                $text = transliterator_transliterate('Any-Latin; Latin-ASCII; [\u0100-\u7fff] remove', $text);
-                break;
-        }
-
-
-        // lowercase
-        $text = strtolower($text);
-
-        // remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
-
-        if (empty($text))
-        {
-          return 'n-a';
-        }
-
-        return $text;
     }
 }

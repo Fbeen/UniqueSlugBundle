@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -23,12 +24,40 @@ class FbeenUniqueSlugExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
+        $loader->load('services.yaml');
+        
+        // Let the slugupdater service use a slugifier class depending on the configuration of this bundle
+        $this->replaceServiceArgument($container, 'fbeen_unique_slug.slugupdater', 'slugifier_class', $config['slugifier_class']);
 
-        if (array_key_exists('transliterate', $config)) {
-            $definition = $container->getDefinition('fbeen.uniqueslug.slugupdater');
-            $definition->replaceArgument(0, $config['transliterate']);
-            $container->setParameter('transliterate', $config['transliterate']);
+        $this->registerContainerParametersRecursive($container, $this->getAlias(), $config);
+    }
+
+    protected function registerContainerParametersRecursive(ContainerBuilder $container, $alias, $config)
+    {
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($config),
+            \RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ($iterator as $value) {
+            $path = array( );
+            for ($i = 0; $i <= $iterator->getDepth(); $i++) {
+                $path[] = $iterator->getSubIterator($i)->key();
+            }
+            $key = $alias . '.' . implode(".", $path);
+            $container->setParameter($key, $value);
+        }
+    }
+    
+    private function replaceServiceArgument(ContainerBuilder $container, $serviceId, $oldArgument, $newArgument)
+    {
+        $definition = $container->getDefinition($serviceId);
+
+        // try to find the argument 'security.user_checker.main' and replace its value for the value from 'user_checker' configuration variable (see Configuration.php)
+        $arguments = $definition->getArguments();
+        for($i = 0 ; $i < count($arguments) ; $i++) {
+            if($arguments[$i] == $oldArgument) {
+                $definition->replaceArgument($i, new Reference($newArgument));
+                break;
+            }
         }
     }
 }

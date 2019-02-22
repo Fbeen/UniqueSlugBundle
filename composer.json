@@ -1,9 +1,37 @@
 {
-    "name" : "fbeen/uniqueslugbundle",
-    "autoload" : {
-        "psr-0" : {
-            "Fbeen\\UniqueSlugBundle" : ""
+    "name" : "fbeen/uniqueslugbundle4",
+    "type": "symfony-bundle",
+    "description": "Add easy and quickly unique slugs to your enities and routes",
+    "keywords": [
+        "Slugs",
+        "Symfony",
+        "Unique slugs"
+    ],
+    "homepage": "https://github.com/Fbeen/UniqueSlugBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Frank Beentjes",
+            "email": "frankbeen@gmail.com",
+            "homepage": "https://php-programmmer.nl"
         }
+    ],
+    "require": {
+        "php": "^7.0.8",
+        "doctrine/inflector": "^1.2",
+        "nikic/php-parser": "^4.0",
+        "symfony/config": "^3.4|^4.0",
+        "symfony/console": "^3.4|^4.0",
+        "symfony/dependency-injection": "^3.4|^4.0",
+        "symfony/filesystem": "^3.4|^4.0",
+        "symfony/finder": "^3.4|^4.0",
+        "symfony/framework-bundle": "^3.4|^4.0",
+        "symfony/http-kernel": "^3.4|^4.0",
+        "symfony/maker-bundle": ">1.1"
     },
-    "target-dir" : "Fbeen/UniqueSlugBundle"
+    "autoload" : {
+        "psr-4" : {
+            "Fbeen\\UniqueSlugBundle\\" : ""
+        }
+    }
 }

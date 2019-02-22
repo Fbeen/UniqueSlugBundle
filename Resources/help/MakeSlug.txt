@@ -1,0 +1,11 @@
+The <info>%command.name%</info> command creates a slug property with annotations inside your entity or regenerates slugs for all records in the entity database table.
+
+<info>php %command.full_name% BlogPost title</info>
+
+If one of the arguments is missing, the command will ask for the entity class name and the property- or method name interactively.
+
+You can also (re)generate all the records in the entity database table:
+
+<info>php %command.full_name% BlogPost --regenerate</info>
+
+for more information please visit https://github.com/Fbeen/UniqueSlugBundle

@@ -5,17 +5,18 @@ namespace Fbeen\UniqueSlugBundle\Listener;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationException;
-use Fbeen\UniqueSlugBundle\Custom\Slugifier;
+use Fbeen\UniqueSlugBundle\Custom\DoctrineSlugifier;
+use Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface;
 use Fbeen\UniqueSlugBundle\Annotation\Slug as SlugAnnotation;
 
 class SlugUpdater
 {
+    private $slugifier;
     private $supportedTypes;
-    private $transliterate;
 
-    public function __construct($transliterate) {
+    public function __construct(SlugifierInterface $slugifier) {
+        $this->slugifier = $slugifier;
         $this->supportedTypes = array('string', 'integer', 'smallint', 'bigint', 'float', 'decimal', 'date', 'time', 'datetime');
-        $this->transliterate = $transliterate;
     }
 
     public function prePersist(LifecycleEventArgs $args)
@@ -61,18 +62,20 @@ class SlugUpdater
 
         foreach($slugAnnotation->getValues() as $value)
         {
-            if(!$metadata->hasField($value))
+            if(!$this->publicMethodExists($args->getEntity(), $value)) 
             {
-                throw new AnnotationException("The entity '" . get_class($args->getEntity()) . "' has no property '" . $value . "'. Check the parameters in the @Slug annotation.");
+                if(!$metadata->hasField($value))
+                {
+                    throw new AnnotationException("The entity '" . get_class($args->getEntity()) . "' has no property '" . $value . "'. Check the parameters in the @Slug annotation.");
+                }
+
+                $mapping = $metadata->getFieldMapping($value);
+
+                if(!in_array($mapping['type'], $this->supportedTypes))
+                {
+                    throw new AnnotationException("Column '" . $mapping['columnName'] . "' has type '" . $mapping['type'] . "' while only '" . implode("', '", $this->supportedTypes) . "' are supported for the @Slug annotation in the " . get_class($args->getEntity()) . " entity.");
+                }
             }
-
-            $mapping = $metadata->getFieldMapping($value);
-
-            if(!in_array($mapping['type'], $this->supportedTypes))
-            {
-                throw new AnnotationException("Column '" . $mapping['columnName'] . "' has type '" . $mapping['type'] . "' while only '" . implode("', '", $this->supportedTypes) . "' are supported for the @Slug annotation in the " . get_class($args->getEntity()) . " entity.");
-            }
-
         }
 
         if($slugMapping['length'] < 20 || $slugMapping['type'] != 'string')
@@ -93,14 +96,17 @@ class SlugUpdater
         // retrieve the values of the properties entered in the slug annotation
         foreach($slugAnnotation->getValues() as $propertyName)
         {
-            $text[] = $this->retrievePropertyValue($args, $propertyName, $reflectionObject, $slugAnnotation->getFormat());
+            if($this->publicMethodExists($args->getEntity(), $propertyName)) {
+                $text[] = $args->getEntity()->$propertyName();
+            } else {
+                $text[] = $this->retrievePropertyValue($args, $propertyName, $reflectionObject, $slugAnnotation->getFormat());
+            }
         }
-
-        $slugifier = new Slugifier($metadata->getTableName(), $slugMapping['columnName'], $slugMapping['length'], $args->getEntityManager());
+        
+        $doctrineSlugifier = new DoctrineSlugifier($this->slugifier, $metadata->getTableName(), $slugMapping['columnName'], $slugMapping['length'], $args->getEntityManager());
 
         $property->setAccessible(TRUE);
-        $property->setValue($args->getEntity(), $slugifier->generateSlug(implode('-', $text), $property->getValue($args->getEntity()), $this->transliterate ));
-
+        $property->setValue($args->getEntity(), $doctrineSlugifier->generateSlug(implode('-', $text), $property->getValue($args->getEntity())));
     }
 
     private function retrievePropertyValue(LifecycleEventArgs $args, $propertyName, $reflectionObject, $format)
@@ -129,5 +135,18 @@ class SlugUpdater
         }
 
         return $prop->getValue($args->getEntity());
+    }
+    
+    private function publicMethodExists($class, $method): bool
+    {
+        if(method_exists($class, $method))
+        {
+            $reflection = new \ReflectionMethod($class, $method);
+            if($reflection->isPublic()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

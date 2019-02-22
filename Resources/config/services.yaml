@@ -1,0 +1,16 @@
+services:
+            
+    fbeen_unique_slug.slugifier:
+        class: Fbeen\UniqueSlugBundle\Slugifier\Slugifier
+            
+    fbeen_unique_slug.slugupdater:
+        class: Fbeen\UniqueSlugBundle\Listener\SlugUpdater
+        arguments: ['slugifier_class'] # will be replaced by FbeenUniqueSlugExtension.php
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }
+            
+    Fbeen\UniqueSlugBundle\Maker\MakeSlug:
+        arguments: ['@maker.file_manager', '@doctrine.orm.default_entity_manager', '@maker.doctrine_helper', '@fbeen_unique_slug.slugupdater']
+        tags: ['maker.command']
+        

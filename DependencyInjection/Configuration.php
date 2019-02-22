@@ -17,15 +17,11 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('fbeen_unique_slug');
+        $treeBuilder = new TreeBuilder('fbeen_unique_slug');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
-        $rootNode
+        $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('transliterate')->end()
+                ->scalarNode('slugifier_class')->defaultValue('fbeen_unique_slug.slugifier')->end()
             ->end()
         ;
 
