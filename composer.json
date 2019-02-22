@@ -1,5 +1,5 @@
 {
-    "name" : "fbeen/uniqueslugbundle4",
+    "name" : "fbeen/uniqueslugbundle",
     "type": "symfony-bundle",
     "description": "Add easy and quickly unique slugs to your enities and routes",
     "keywords": [

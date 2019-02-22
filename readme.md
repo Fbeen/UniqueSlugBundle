@@ -13,7 +13,7 @@ With this bundle you will be able to automatic generate unique slugs inside your
 * supports custom (language specific) slugifiers
 
 ## Requirements
-This bundles current release requires Symfony 4. You can use Version 1.2 from this Bundle to use it with Symfony >= 2.7
+This bundles current release requires Symfony 4. You can use Version 1.1 from this Bundle to use it with Symfony >= 2.7
 
 ## Installation
 
