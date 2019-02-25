@@ -13,8 +13,14 @@ With this bundle you will be able to automatic generate unique slugs inside your
 * supports custom (language specific) slugifiers
 
 ## Requirements
-This bundles current release requires Symfony 4. You can use Version 1.1 from this Bundle to use it with Symfony >= 2.7
+This bundles current release requires Symfony 4. You can use Version 1.2 from this Bundle to use it with Symfony >= 2.7
 
+## Known restrictions
+* The slugs will be generated when you persist your entity to the database which means that when you create your entity or update properties the slug is not yet available or updatet.
+* Slugs cannot made from the entities primary parameter (@Id) because those values will be set by the database INSERT command.
+* The slugs will be truncated to the length of the slug field minus 8(*) characters! the last positions are used for additional digits that will make the slug unique if necessary.
+
+(*) 8 at default conifguration or otherwise as much as the '**fbeen_unique_slug.maximum_digits**' parameter (see below at "Full configuration example")
 ## Installation
 
 
@@ -240,18 +246,25 @@ class MyCustomSlugifier implements SlugifierInterface
 ```
 2. If you place your slugifier in the App\Service directory it will be autowired as a service. If not add a service definition in your ***/config/services.yaml*** file
 ```
+services:
+
     # Only necessary if autowiring is off
     Fbeen\UniqueSlugBundle\Slugifier\Slugifier: ~
 ```
 
 3. Add a configuration file in the ***config/packages*** directory with the name ***fbeen_unique_slug.yaml***.
 ```
-    # config/packages/fbeen_unique_slug.yaml
-    fbeen_unique_slug:
-        slugifier_class: App\Service\MyCustomSlugifier
+# config/packages/fbeen_unique_slug.yaml
+fbeen_unique_slug:
+    slugifier_class: App\Service\MyCustomSlugifier
 ```
 Ready! From now on the slugs will be generated with your own slugifier class.
 
-## Important notes
-
-1) The slugs will be truncated to the length of the slug field minus 10 characters! the last 10 positions are used for additional digits that will make the slug unique if necessary.
+## Full configuration example with default values
+```
+# config/packages/fbeen_unique_slug.yaml
+fbeen_unique_slug:
+    slugifier_class: 'fbeen_unique_slug.slugifier'
+    maximum_digits: 8
+    minimum_slug_length: 16
+```

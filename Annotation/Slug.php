@@ -3,12 +3,18 @@
 namespace Fbeen\UniqueSlugBundle\Annotation;
 
 use Doctrine\Common\Annotations\AnnotationException;
+use Fbeen\UniqueSlugBundle\Validator\Constraints;
+
+
 /**
  * @Annotation
+ * 
+ * @author Frank Beentjes <frankbeen@gmail.com>
  */
 class Slug
 {
     private $values;
+    
     private $format = NULL;
 
     public function __construct($options)
@@ -31,12 +37,18 @@ class Slug
         }
     }
 
-    public function getValues()
+    /*
+     * returns an array with property or method names
+     */
+    public function getValues() : array
     {
         return $this->values;
     }
 
-    public function getFormat()
+    /*
+     * returns a \DateTime format string. e.g. 'Y-m-d' or NULL
+     */
+    public function getFormat() : ?string
     {
         return $this->format;
     }

@@ -17,7 +17,8 @@ class Slugifier implements SlugifierInterface
         // trim
         $text = trim($text, '-');
 
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        //NO LATIN CONVERSION: $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        $text = \transliterator_transliterate('Any-Latin; Latin-ASCII; [\u0100-\u7fff] remove', $text);
 
         // lowercase
         $text = strtolower($text);

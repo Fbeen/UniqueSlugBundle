@@ -2,6 +2,7 @@
 
 namespace Fbeen\UniqueSlugBundle\Custom;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface;
 
 /**
@@ -15,39 +16,71 @@ class DoctrineSlugifier
     private $columnName;
     private $fieldlength;
     private $entityManager;
-    private $additionalChars;
+    private $additionalDigits;
+    private $minimumSlugLength;
     private $slugifier;
 
 
-    public function __construct(SlugifierInterface $slugifier, $tableName, $columnName, $fieldlength, $entityManager, $additionalChars = 10)
+    /**
+     * Constructor
+     * 
+     * @param Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface  $slugifier         The slugifier to use
+     * @param string                                               $tableName         The database tablename from the entity
+     * @param string                                               $columnName        The database columnname from the slug property
+     * @param int                                                  $fieldlength       The length of the column from the slug property
+     * @param Doctrine\ORM\EntityManagerInterface                  $entityManager     The Doctrine entitymanager to use
+     * @param int                                                  $additionalDigits  The maximum additional digits to make a slug unique
+     * @param int                                                  $minimumSlugLength The minimum length of the slug column in the database
+     */
+    public function __construct(SlugifierInterface $slugifier, string $tableName, string $columnName, int $fieldlength, EntityManagerInterface $entityManager, int $additionalDigits, int $minimumSlugLength)
     {
         $this->tableName = $tableName;
         $this->columnName = $columnName;
         $this->fieldlength = $fieldlength;
         $this->entityManager = $entityManager;
-        $this->additionalChars = $additionalChars;
+        $this->additionalDigits = $additionalDigits;
+        $this->minimumSlugLength = $minimumSlugLength;
         $this->slugifier = $slugifier;
     }
 
-    public function generateSlug($text, $oldSlug = NULL)
+    /**
+     * Let's the slugifier generate a slug, truncate the slug to it maximum possible length and make the slug unique
+     * 
+     * @param string $text    The text to slugify
+     * @param string $oldSlug The current slug in case of an update
+     * 
+     * @return string The unique slug
+     */
+    public function generateSlug(string $text, ?string $oldSlug = NULL) : string
     {
-        if(!$this->slugifier instanceof SlugifierInterface) {
-            throw new \Symfony\Component\Validator\Exception\RuntimeException($slugifyClass . ' does not implement Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface');
-        }
-
-        return $this->makeSlugUnique( $this->truncateSlug( $this->slugifier->slugify($text) ), $oldSlug );;
+        return $this->makeSlugUnique( $this->truncateSlug( $this->slugifier->slugify($text) ), $oldSlug );
     }
 
-    private function truncateSlug($slug)
+    /**
+     * Truncates a slug to its maximal possible length regarding the maximal characters that are reserved in the database column and the maximal additional digits
+     * 
+     * @param string $slug The slug to truncate
+     * 
+     * @return string The truncated slug
+     */
+    private function truncateSlug(string $slug) : string
     {
-        // truncate slug to fieldlength - $additionalChars positions for additional number.
-        if(strlen($slug) > $this->fieldlength - $this->additionalChars)
-            return substr($slug, 0, $this->fieldlength - $this->additionalChars);
+        // truncate slug to fieldlength - $additionalDigits positions for additional number.
+        if(strlen($slug) > $this->fieldlength - $this->additionalDigits)
+            return substr($slug, 0, $this->fieldlength - $this->additionalDigits);
 
         return $slug;
     }
 
-    private function makeSlugUnique($slug, $oldSlug)
+    /**
+     * Now let's make the given slug unique for this database table
+     * 
+     * @param string $slug The new slug
+     * @param string $oldSlug The Old slug if any
+     * 
+     * @return string The unique slug
+     */
+    private function makeSlugUnique(string $slug, ?string $oldSlug) : string
     {
         $i = 0;
         $baseSlug = $slug;
@@ -61,7 +94,7 @@ class DoctrineSlugifier
         $results = $statement->fetchAll();
 
         // if the old slug (before the update) is in the results then we keep the same slug
-        if($this->existSlug($oldSlug, $results))
+        if(null !== $oldSlug && $this->existSlug($oldSlug, $results))
         {
             return $oldSlug;
         }
@@ -76,11 +109,19 @@ class DoctrineSlugifier
         return $slug;
     }
 
-    private function existSlug($slug, $results)
+    /**
+     * Tries to find the same slug in a associative array.
+     * 
+     * @param string  $slug     The slug to search for
+     * @param array   $results  An associative array with the results of query.
+     * 
+     * @return bool Returns TRUE if the slug is found and otherwise FALSE
+     */
+    private function existSlug(string $slug, array $results): bool
     {
         foreach($results as $row)
         {
-            if($row[$this->columnName] == $slug)
+            if($row[$this->columnName] === $slug)
                 return TRUE;
         }
 

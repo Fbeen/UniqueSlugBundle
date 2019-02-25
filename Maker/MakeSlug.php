@@ -34,9 +34,9 @@ use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Validator\Validation;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity; 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Fbeen\UniqueSlugBundle\Annotation\Slug;
-use Fbeen\UniqueSlugBundle\Listener\SlugUpdater;
+use Fbeen\UniqueSlugBundle\Custom\SlugUpdater;
+use Symfony\Bundle\MakerBundle\Util\ClassNameDetails;
 
 final class MakeSlug extends AbstractMaker
 {
@@ -155,11 +155,23 @@ final class MakeSlug extends AbstractMaker
         $manipulator->addEntityField($newField['fieldName'], $annotationOptions, ['@Slug("' . $input->getArgument('slug-property') . '")']);
 
         $this->fileManager->dumpFile($entityPath, $manipulator->getSourceCode());
-        
-        $io->text('Property <fg=green>slug</> with necessary annotations created inside the <fg=yellow>' . $entityClassDetails->getShortName() . '</> entity.');        
+               
+        $io->text([
+            'Property <fg=green>slug</> with necessary annotations created inside the <fg=yellow>' . $entityClassDetails->getShortName() . '</> entity.',
+            '',
+            'Next: When you\'re ready, create a migration with <comment>make:migration</comment>',
+            'Last: When your database schema is up to date you could (re)generate all slugs in the table by <comment>make:slug ' . $input->getArgument('entity-class') . ' --regenerate</comment>',
+            '',
+        ]);
     }
     
-    public function regenerateSlugs($entityClassDetails, ConsoleStyle $io)
+    /**
+     * regenerates all the slugs in a entity table
+     * 
+     * @param Symfony\Bundle\MakerBundle\Util\ClassNameDetails  $entityClassDetails  An object with some entity data
+     * @param Symfony\Bundle\MakerBundle\ConsoleStyle           $io                  A wrapper to write output to the console
+     */
+    public function regenerateSlugs(ClassNameDetails $entityClassDetails, ConsoleStyle $io) : void
     {
         $entityName = $entityClassDetails->getFullName();
 
@@ -169,14 +181,14 @@ final class MakeSlug extends AbstractMaker
 
         foreach($entities as $entity)
         {
-            $this->slugUpdater->preUpdate(new LifecycleEventArgs($entity, $this->entityManager));
+            $this->slugUpdater->updateSlugs($entity);
             $this->entityManager->flush();
         }
 
         $io->text('<fg=blue>Done!</> ' . count($entities) . ' slugs written.');
     }
 
-        /**
+    /**
      * {@inheritdoc}
      */
     public function configureDependencies(DependencyBuilder $dependencies)
@@ -226,7 +238,15 @@ final class MakeSlug extends AbstractMaker
         return $classDetails->getPath();
     }
     
-    private function publicMethodExists($class, $method): bool
+    /**
+     * tests of a given method exists and have public access for a given class
+     * 
+     * @param object|string  $class   An object instance or a class name
+     * @param string         $method  A method name
+     * 
+     * @return bool TRUE if the method exists and have public access, otherwise FALSE
+     */
+    private function publicMethodExists($class, string $method): bool
     {
         if(method_exists($class, $method))
         {
