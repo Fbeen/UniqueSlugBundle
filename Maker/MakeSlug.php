@@ -19,7 +19,6 @@ use Symfony\Bundle\MakerBundle\Generator;
 use Symfony\Bundle\MakerBundle\InputConfiguration;
 use Symfony\Bundle\MakerBundle\Validator;
 use Symfony\Bundle\MakerBundle\Util\ClassSourceManipulator;
-use Symfony\Bundle\MakerBundle\Util\ClassDetails;
 use Symfony\Bundle\MakerBundle\FileManager;
 use Symfony\Bundle\MakerBundle\Exception\RuntimeCommandException;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -36,6 +35,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Doctrine\ORM\EntityManager;
 use Fbeen\UniqueSlugBundle\Annotation\Slug;
 use Fbeen\UniqueSlugBundle\Custom\SlugUpdater;
+use Fbeen\UniqueSlugBundle\Custom\SlugValidator;
+use Fbeen\UniqueSlugBundle\Custom\Helper;
 use Symfony\Bundle\MakerBundle\Util\ClassNameDetails;
 
 final class MakeSlug extends AbstractMaker
@@ -44,14 +45,16 @@ final class MakeSlug extends AbstractMaker
     private $entityManager;
     private $doctrineHelper;
     private $slugUpdater;
+    private $slugValidator;
     private $command;
 
-    public function __construct(FileManager $fileManager, EntityManager $entityManager, DoctrineHelper $doctrineHelper, SlugUpdater $slugUpdater)
+    public function __construct(FileManager $fileManager, EntityManager $entityManager, DoctrineHelper $doctrineHelper, SlugUpdater $slugUpdater, SlugValidator $slugValidator)
     {
         $this->fileManager = $fileManager;
         $this->entityManager = $entityManager;
         $this->doctrineHelper = $doctrineHelper;
         $this->slugUpdater = $slugUpdater;
+        $this->slugValidator = $slugValidator;
     }
 
     public static function getCommandName(): string
@@ -132,9 +135,7 @@ final class MakeSlug extends AbstractMaker
             $input->setArgument('slug-property', $value);
         }
         
-        if(!isset($fieldsArray[$input->getArgument('slug-property')]) && !$this->publicMethodExists($entityClassDetails->getFullName(), $input->getArgument('slug-property'))) {
-            throw new RuntimeCommandException(sprintf('There is no property or method "%s" in the entity "%s".', $input->getArgument('slug-property'), $input->getArgument('entity-class')));
-        }
+        $this->slugValidator->validate($entityClassDetails->getFullName(), [$input->getArgument('slug-property')]);
 
         $newField = array(
             'fieldName' => 'slug',
@@ -143,7 +144,7 @@ final class MakeSlug extends AbstractMaker
             'unique' => true
         );
 
-        $entityPath = $this->getPathOfClass($entityClassDetails->getFullName());
+        $entityPath = Helper::getPathOfClass($entityClassDetails->getFullName());
 
         $manipulator = $this->createClassManipulator($entityPath, $io, false);
 
@@ -194,28 +195,12 @@ final class MakeSlug extends AbstractMaker
     public function configureDependencies(DependencyBuilder $dependencies)
     {
         $dependencies->addClassDependency(
-            Route::class,
-            'router'
-        );
-        $dependencies->addClassDependency(
-            AbstractType::class,
-            'form'
-        );
-        $dependencies->addClassDependency(
             Validation::class,
             'validator'
         );
         $dependencies->addClassDependency(
-            TwigBundle::class,
-            'twig-bundle'
-        );
-        $dependencies->addClassDependency(
             DoctrineBundle::class,
             'orm-pack'
-        );
-        $dependencies->addClassDependency(
-            CsrfTokenManager::class,
-            'security-csrf'
         );
         $dependencies->addClassDependency(
             ParamConverter::class,
@@ -229,33 +214,5 @@ final class MakeSlug extends AbstractMaker
         $manipulator->setIo($io);
 
         return $manipulator;
-    }
-    
-    private function getPathOfClass(string $class): string
-    {
-        $classDetails = new ClassDetails($class);
-
-        return $classDetails->getPath();
-    }
-    
-    /**
-     * tests of a given method exists and have public access for a given class
-     * 
-     * @param object|string  $class   An object instance or a class name
-     * @param string         $method  A method name
-     * 
-     * @return bool TRUE if the method exists and have public access, otherwise FALSE
-     */
-    private function publicMethodExists($class, string $method): bool
-    {
-        if(method_exists($class, $method))
-        {
-            $reflection = new \ReflectionMethod($class, $method);
-            if($reflection->isPublic()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -3,13 +3,20 @@
 namespace Fbeen\UniqueSlugBundle\Slugifier;
 
 /**
- * Description of Slugifier
+ * This is the slugifier that this bundle will use by default but you can also implement your own slugifier.
  *
  * @author Frank Beentjes <frankbeen@gmail.com>
  */
 class Slugifier implements SlugifierInterface
 {
-    public function slugify($text) : string
+    /**
+     * Returns a URL valid slug from any string
+     * 
+     * @param string $text The string to slugify.
+     * 
+     * @return string
+     */
+    public function slugify(?string $text) : string
     {
         // replace non letter or digits by -
         $text = preg_replace('~[^\\pL\d]+~u', '-', $text);

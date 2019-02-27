@@ -20,6 +20,8 @@ interface SlugifierInterface
      * ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=
      * 
      * Any other character should be avoided or encoded with the percent-encoding (%hh)
+     * 
+     ! You should run "phpunit Tests/SlugifierTest" from the main directory of this bundle to test your slugifier!
      */
-    public function slugify($text) : string;
+    public function slugify(?string $text) : string;
 }

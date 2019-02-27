@@ -2,6 +2,11 @@
 <phpunit bootstrap="../../autoload.php"
          colors="true">
 
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <server name="KERNEL_CLASS" value="App\Kernel" />
+    </php>
+
     <testsuites>
         <testsuite name="The project's test suite">
             <directory>Tests</directory>

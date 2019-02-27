@@ -3,9 +3,13 @@ services:
     fbeen_unique_slug.slugifier:
         class: Fbeen\UniqueSlugBundle\Slugifier\Slugifier
             
+    fbeen_unique_slug.slugvalidator:
+        class: Fbeen\UniqueSlugBundle\Custom\SlugValidator
+        arguments: ['@doctrine.orm.default_entity_manager', '@parameter_bag']
+            
     fbeen_unique_slug.slugupdater:
         class: Fbeen\UniqueSlugBundle\Custom\SlugUpdater
-        arguments: ['slugifier_class', '@doctrine.orm.default_entity_manager', '@parameter_bag'] # slugifier_class will be replaced by FbeenUniqueSlugExtension.php
+        arguments: ['slugifier_class', '@doctrine.orm.default_entity_manager', '@parameter_bag', '@fbeen_unique_slug.slugvalidator'] # slugifier_class will be replaced by FbeenUniqueSlugExtension.php
             
     fbeen_unique_slug.doctrine_event_listener:
         class: Fbeen\UniqueSlugBundle\Listener\DoctrineEventListener
@@ -15,5 +19,5 @@ services:
             - { name: doctrine.event_listener, event: preUpdate }
             
     Fbeen\UniqueSlugBundle\Maker\MakeSlug:
-        arguments: ['@maker.file_manager', '@doctrine.orm.default_entity_manager', '@maker.doctrine_helper', '@fbeen_unique_slug.slugupdater']
+        arguments: ['@maker.file_manager', '@doctrine.orm.default_entity_manager', '@maker.doctrine_helper', '@fbeen_unique_slug.slugupdater', '@fbeen_unique_slug.slugvalidator']
         tags: ['maker.command']

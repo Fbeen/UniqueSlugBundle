@@ -249,7 +249,7 @@ class MyCustomSlugifier implements SlugifierInterface
 services:
 
     # Only necessary if autowiring is off
-    Fbeen\UniqueSlugBundle\Slugifier\Slugifier: ~
+    App\Service\MyCustomSlugifier: ~
 ```
 
 3. Add a configuration file in the ***config/packages*** directory with the name ***fbeen_unique_slug.yaml***.
@@ -258,6 +258,8 @@ services:
 fbeen_unique_slug:
     slugifier_class: App\Service\MyCustomSlugifier
 ```
+4. Now you should run **phpunit Tests/SlugifierTest** in the main directory of this bundle to test your slugifier class! (you must have phpunit installed. See https://phpunit.readthedocs.io/en/8.0/installation.html)
+
 Ready! From now on the slugs will be generated with your own slugifier class.
 
 ## Full configuration example with default values

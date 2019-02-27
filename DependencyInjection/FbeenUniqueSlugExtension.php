@@ -19,7 +19,7 @@ class FbeenUniqueSlugExtension extends Extension
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container) : void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -40,7 +40,14 @@ class FbeenUniqueSlugExtension extends Extension
         $this->registerContainerParametersRecursive($container, $this->getAlias(), $config);
     }
 
-    protected function registerContainerParametersRecursive(ContainerBuilder $container, $alias, $config)
+    /**
+     * Set all parameters of this bundle in the container
+     * 
+     * @param ContainerBuilder $container The container builder
+     * @param string $alias Alias name of this bundle e.g. fbeen_unique_slug
+     * @param array $config All configuration variables for this bundle
+     */
+    protected function registerContainerParametersRecursive(ContainerBuilder $container, string $alias, array $config) : void
     {
         $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($config),
             \RecursiveIteratorIterator::SELF_FIRST);
@@ -55,7 +62,18 @@ class FbeenUniqueSlugExtension extends Extension
         }
     }
     
-    private function replaceServiceArgument(ContainerBuilder $container, $serviceId, $oldArgument, $newArgument)
+    /**
+     * Replaces a Service argument ( e.g. arguments: ['slugifier_class'] ) for a new argument ( e.g. arguments: ['Fbeen/UniqueSlugBundle/Slugifier/Slugifier'] ). 
+     * With this function the position of the argument in the array doen not matter. It just walks through the elements to find the old argument en then replaces it.
+     * 
+     * @param ContainerBuilder $container
+     * @param string $serviceId
+     * @param string $oldArgument
+     * @param string $newArgument
+     * 
+     * @return void
+     */
+    private function replaceServiceArgument(ContainerBuilder $container, string $serviceId, string $oldArgument, string $newArgument) : void
     {
         $definition = $container->getDefinition($serviceId);
 

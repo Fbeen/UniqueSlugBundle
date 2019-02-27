@@ -1,0 +1,17 @@
+To run the test you have to add the following to your config/packages/doctrine.yaml file:
+
+
+doctrine:
+    orm:
+        # ...
+
+        mappings:
+            # ...
+
+            FbeenUniqueSlugBundle:
+                is_bundle: true
+                type: annotation
+                dir: 'Tests/Entity'
+                prefix: 'Fbeen\UniqueSlugBundle\Tests\Entity'
+                alias: FbeenUniqueSlugBundle
+

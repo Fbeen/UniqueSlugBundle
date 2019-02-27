@@ -5,10 +5,12 @@ namespace Fbeen\UniqueSlugBundle\Custom;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface;
+use Fbeen\UniqueSlugBundle\Custom\SlugValidator;
+use Fbeen\UniqueSlugBundle\Custom\Helper;
 
 /**
  * The values of the entity properties or method will be used to generate a slug. 
- * Once we have the data we want to use we will use DoctrineSlugifier to slugify the data and make it unique if it not already was.
+ * Once we have the data we will use DoctrineSlugifier to slugify the data and make it unique if it not already was.
  *
  * @author Frank Beentjes <frankbeen@gmail.com>
  */
@@ -27,13 +29,13 @@ class SlugUpdater
      * @param Doctrine\ORM\EntityManagerInterface                                       $entityManager  The Doctrine entitymanager to use
      * @param Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface  $params         Parameterinterface to get parameters from the container
      */
-    public function __construct(SlugifierInterface $slugifier, EntityManagerInterface $entityManager, ParameterBagInterface $params)
+    public function __construct(SlugifierInterface $slugifier, EntityManagerInterface $entityManager, ParameterBagInterface $params, SlugValidator $slugValidator) 
     {
         $this->slugifier = $slugifier;
         $this->entityManager = $entityManager;
         $this->params = $params;
         $this->supportedTypes = array('string', 'integer', 'smallint', 'bigint', 'float', 'decimal', 'date', 'time', 'datetime');
-        $this->reader = new SlugAnnotationReader($this->entityManager, $this->params->get('fbeen_unique_slug.maximum_digits'), $this->params->get('fbeen_unique_slug.minimum_slug_length'));
+        $this->reader = new SlugAnnotationReader($this->entityManager, $slugValidator);
 
     }
 
@@ -99,7 +101,7 @@ class SlugUpdater
         $prop = $reflectionObject->getProperty($propertyName);
         $prop->setAccessible(TRUE);
         
-        if($this->reader->publicMethodExists($entity, $propertyName))
+        if(Helper::publicMethodExists($entity, $propertyName))
         {
             return $entity->$propertyName();
         }

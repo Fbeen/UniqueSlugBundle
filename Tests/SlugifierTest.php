@@ -1,8 +1,8 @@
 <?php
 
-namespace Fbeen\UniqueSlugBundle\Tests\Slugifier;
+namespace Fbeen\UniqueSlugBundle\Tests;
 
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Fbeen\UniqueSlugBundle\Slugifier\Slugifier;
 
 /**
@@ -10,15 +10,27 @@ use Fbeen\UniqueSlugBundle\Slugifier\Slugifier;
  *
  * @author Frank Beentjes <frankbeen@gmail.com>
  */
-class SlugifierTest extends TestCase
+class SlugifierTest extends KernelTestCase
 {
+    /**
+     * {@inheritDoc}
+     */
+    protected function setUp()
+    {
+        $kernel = self::bootKernel();
+    }
+
     public function testSlugify()
     {
-        $slugifier = new Slugifier();
+        $container = self::$container;
+        $params = $container->get('parameter_bag');
+        $slugifierClass = $params->get('fbeen_unique_slug.slugifier_class');
+
+        $slugifier = $container->get($slugifierClass);
         
         $this->assertTrue($slugifier instanceof \Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface, 'Slugifier class does not implement Fbeen\UniqueSlugBundle\Slugifier\SlugifierInterface');
 
-        echo "\n\n";
+        echo "\n\nUsing: " . get_class($slugifier) . "\n\n";
         
         foreach($this->generateTestStrings() as $msg => $text)
         {
