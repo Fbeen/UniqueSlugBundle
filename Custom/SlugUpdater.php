@@ -97,14 +97,14 @@ class SlugUpdater
         $reflectionObject = new \ReflectionObject($entity);
 
         $type = $this->entityManager->getClassMetadata(get_class($entity))->getTypeOfField($propertyName);
-
-        $prop = $reflectionObject->getProperty($propertyName);
-        $prop->setAccessible(TRUE);
         
         if(Helper::publicMethodExists($entity, $propertyName))
         {
             return $entity->$propertyName();
         }
+
+        $prop = $reflectionObject->getProperty($propertyName);
+        $prop->setAccessible(TRUE);
 
         if(in_array($type, array('date', 'time', 'datetime')))
         {
