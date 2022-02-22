@@ -91,7 +91,7 @@ class DoctrineSlugifier
 
         $statement = $this->entityManager->getConnection()->prepare($query);
         $statement->execute();
-        $results = $statement->fetchAll();
+        $results = $statement->executeQuery()->fetchAllAssociative();
 
         // if the old slug (before the update) is in the results then we keep the same slug
         if(null !== $oldSlug && $this->existSlug($oldSlug, $results))
