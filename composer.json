@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.0",
         "ext-intl": "*",
-        "doctrine/inflector": "^1.2",
+        "doctrine/inflector": "^2.0.4",
         "nikic/php-parser": "^4.0",
         "symfony/config": "^3.4|^4.0",
         "symfony/console": "^3.4|^4.0",
