@@ -23,11 +23,11 @@
         "nikic/php-parser": "^4.0",
         "symfony/config": "^3.4|^4.0|^5.4",
         "symfony/console": "^3.4|^4.0|^v5.4",
-        "symfony/dependency-injection": "^3.4|^4.0",
-        "symfony/filesystem": "^3.4|^4.0",
-        "symfony/finder": "^3.4|^4.0",
-        "symfony/framework-bundle": "^3.4|^4.0",
-        "symfony/http-kernel": "^3.4|^4.0",
+        "symfony/dependency-injection": "^3.4|^4.0|^5.4",
+        "symfony/filesystem": "^3.4|^4.0|^5.4",
+        "symfony/finder": "^3.4|^4.0|^5.4",
+        "symfony/framework-bundle": "^3.4|^4.0|^5.4",
+        "symfony/http-kernel": "^3.4|^4.0|^5.4",
         "symfony/maker-bundle": ">1.1"
     },
     "autoload" : {
